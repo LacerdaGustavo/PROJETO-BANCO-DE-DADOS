@@ -96,3 +96,9 @@ CREATE TABLE PROCEDIMENTO_REALIZADO (
     FOREIGN KEY (id_atendimento) REFERENCES ATENDIMENTO(id_atendimento) ON DELETE CASCADE,
     FOREIGN KEY (id_procedimento) REFERENCES PROCEDIMENTO(id_procedimento)
 );
+
+-- Ajuste identificado durante a implementação do ponto 3 (CRUD):
+-- flag para controlar se o procedimento já foi faturado,
+-- necessária para a regra de remoção segura
+ALTER TABLE PROCEDIMENTO_REALIZADO
+ADD COLUMN faturado BOOLEAN NOT NULL DEFAULT FALSE;
