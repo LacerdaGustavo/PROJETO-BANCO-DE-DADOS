@@ -59,3 +59,23 @@ WHERE EXTRACT(YEAR FROM e.data_plantao) = EXTRACT(YEAR FROM CURRENT_DATE)
   AND EXTRACT(MONTH FROM e.data_plantao) = EXTRACT(MONTH FROM CURRENT_DATE)
 GROUP BY u.nome, pe.nome
 ORDER BY u.nome, qtd_plantoes DESC;
+
+-- ------------------------------------------------------------
+-- 4) Listar pacientes que nunca realizaram nenhum procedimento
+-- de nível de risco 'ALTO'
+-- ------------------------------------------------------------
+-- SELECT puro usando NOT IN com subconsulta: busca os pacientes
+-- cujo id_pessoa não aparece entre os que já realizaram algum
+-- procedimento de risco ALTO (via ATENDIMENTO + PROCEDIMENTO_REALIZADO
+-- + PROCEDIMENTO).
+
+SELECT pe.nome AS nome_paciente
+FROM PACIENTE pa
+JOIN PESSOA pe ON pe.id_pessoa = pa.id_pessoa
+WHERE pa.id_pessoa NOT IN (
+    SELECT a.id_paciente
+    FROM ATENDIMENTO a
+    JOIN PROCEDIMENTO_REALIZADO pr ON pr.id_atendimento = a.id_atendimento
+    JOIN PROCEDIMENTO p ON p.id_procedimento = pr.id_procedimento
+    WHERE p.nivel_risco = 'ALTO'
+);
