@@ -188,3 +188,45 @@ SELECT remover_procedimento_realizado(8, 2);
 -- Exemplo de uso inválido: marcar como faturado antes e tentar remover
 -- UPDATE PROCEDIMENTO_REALIZADO SET faturado = TRUE WHERE id_atendimento = 1 AND id_procedimento = 1;
 -- SELECT remover_procedimento_realizado(1, 1);
+
+-- ------------------------------------------------------------
+-- 6) Calcular o tempo médio de duração dos atendimentos
+-- por residente
+-- ------------------------------------------------------------
+-- Function que retorna, para cada residente, o nome, a
+-- quantidade de atendimentos realizados e o tempo médio de
+-- duração (em minutos), usando a coluna duracao_minutos já
+-- existente em ATENDIMENTO. o resultado está ordenado do maior 
+-- para o menor tempo médio.
+-- Observação: o ORDER BY usa a expressão AVG(a.duracao_minutos)
+-- diretamente, e não o nome da coluna de saída
+-- (tempo_medio_minutos), pois em funções com RETURNS TABLE o
+-- Postgres cria uma variável interna com o mesmo nome da coluna,
+-- o que torna a ordenação por nome ambígua e faz o ORDER BY
+-- não funcionar como esperado.
+
+CREATE OR REPLACE FUNCTION tempo_medio_atendimento_por_residente()
+RETURNS TABLE (
+    id_residente        INT,
+    nome_residente       VARCHAR(150),
+    qtd_atendimentos     BIGINT,
+    tempo_medio_minutos  NUMERIC
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        r.id_profissional,
+        pe.nome,
+        COUNT(a.id_atendimento),
+        ROUND(AVG(a.duracao_minutos), 2)
+    FROM RESIDENTE r
+    JOIN PROFISSIONAL pr ON pr.id_pessoa = r.id_profissional
+    JOIN PESSOA pe ON pe.id_pessoa = pr.id_pessoa
+    JOIN ATENDIMENTO a ON a.id_residente = r.id_profissional
+    GROUP BY r.id_profissional, pe.nome
+    ORDER BY AVG(a.duracao_minutos) DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Exemplo de uso: tempo médio de duração por residente
+SELECT * FROM tempo_medio_atendimento_por_residente();
