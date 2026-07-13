@@ -102,3 +102,9 @@ CREATE TABLE PROCEDIMENTO_REALIZADO (
 -- necessária para a regra de remoção segura
 ALTER TABLE PROCEDIMENTO_REALIZADO
 ADD COLUMN faturado BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Ajuste identificado durante a implementação do ponto 3 (CRUD):
+-- endereco do paciente, necessário para atender ao requisito de
+-- atualização de dados (endereço ou convênio)
+ALTER TABLE PACIENTE
+ADD COLUMN endereco VARCHAR(255);
