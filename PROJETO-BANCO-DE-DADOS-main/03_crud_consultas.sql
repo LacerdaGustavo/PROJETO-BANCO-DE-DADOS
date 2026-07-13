@@ -58,8 +58,8 @@ WHERE pr.id_atendimento = 1;
 -- paciente e o dado que quiser atualizar.
 
 UPDATE PACIENTE
-SET endereco     = COALESCE('Rua das Flores, 123 - Campina Grande/PB', endereco),
-    num_convenio = COALESCE(num_convenio, num_convenio)
+SET endereco     = 'Rua das Flores, 123 - Campina Grande/PB',
+    num_convenio = 'HAPVIDA-777'
 WHERE id_pessoa = 1;
 
 -- ------------------------------------------------------------
