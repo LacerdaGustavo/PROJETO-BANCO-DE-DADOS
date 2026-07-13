@@ -116,3 +116,17 @@ ADD COLUMN endereco VARCHAR(255);
 -- sem uma ocorrência real datada.
 ALTER TABLE ESCALA
 ADD COLUMN data_plantao DATE NOT NULL DEFAULT CURRENT_DATE;
+
+-- Ajuste identificado durante a implementação do ponto 4
+-- (Consultas analíticas): coluna de nível de risco em
+-- PROCEDIMENTO, necessária para identificar procedimentos de
+-- risco 'ALTO'. A tabela original não previa essa classificação.
+ALTER TABLE PROCEDIMENTO
+ADD COLUMN nivel_risco VARCHAR(10) NOT NULL DEFAULT 'BAIXO'
+CHECK (nivel_risco IN ('BAIXO', 'MEDIO', 'ALTO'));
+
+-- Marca alguns procedimentos como de risco 'ALTO', para permitir
+-- testar a consulta de pacientes que nunca realizaram
+-- procedimento de risco 'ALTO'.
+UPDATE PROCEDIMENTO SET nivel_risco = 'ALTO'
+WHERE nome IN ('Intubação Orotraqueal', 'Acesso Venoso Central', 'Lavagem Gástrica');
