@@ -93,3 +93,20 @@ INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade,
 (8, 2, 1, 5, 'Rápido e eficiente'),
 (9, 5, 1, 20, 'Imagem de boa qualidade'),
 (10, 7, 1, 50, 'Lesão extensa');
+
+-- Dados de teste para ESCALA (plantões escalados)
+-- Usando as 3 unidades, os 5 residentes e os 5 preceptores já
+-- cadastrados em 02_dados.sql. Datas dentro de julho/2026 para
+-- representar o "mês corrente" da consulta analítica.
+
+INSERT INTO ESCALA (id_unidade, dia_semana, turno, id_residente, id_preceptor, data_plantao) VALUES
+(1, 'Segunda', 'Manhã', 6, 11, '2026-07-06'),
+(1, 'Terça',   'Tarde', 7, 12, '2026-07-07'),
+(2, 'Quarta',  'Noite', 8, 13, '2026-07-08'),
+(2, 'Quinta',  'Manhã', 9, 14, '2026-07-09'),
+(3, 'Sexta',   'Tarde', 10, 11, '2026-07-10'),
+(1, 'Sábado',  'Noite', 6, 15, '2026-07-11'),
+(2, 'Domingo', 'Manhã', 7, 12, '2026-07-12'),
+(3, 'Segunda', 'Tarde', 8, 13, '2026-07-13'),
+(1, 'Terça',   'Noite', 9, 14, '2026-07-14'),
+(2, 'Quarta',  'Manhã', 10, 11, '2026-07-15');
