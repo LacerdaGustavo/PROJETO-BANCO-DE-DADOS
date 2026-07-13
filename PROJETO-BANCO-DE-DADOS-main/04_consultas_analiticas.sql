@@ -37,3 +37,25 @@ WHERE EXTRACT(YEAR FROM a.data_hora) = 2026
 GROUP BY pe.nome
 HAVING COUNT(a.id_atendimento) > 5
 ORDER BY total_atendimentos DESC;
+
+-- ------------------------------------------------------------
+-- 3) Para cada unidade, mostrar a quantidade de plantões
+-- escalados por residente no mês corrente
+-- ------------------------------------------------------------
+-- SELECT puro com JOIN + GROUP BY, filtrando pelo mês/ano atual
+-- via CURRENT_DATE (não precisa fixar o mês manualmente — pega
+-- o mês corrente automaticamente sempre que a query rodar).
+
+SELECT
+    u.nome AS unidade,
+    pe.nome AS nome_residente,
+    COUNT(e.id_escala) AS qtd_plantoes
+FROM ESCALA e
+JOIN UNIDADE u ON u.id_unidade = e.id_unidade
+JOIN RESIDENTE r ON r.id_profissional = e.id_residente
+JOIN PROFISSIONAL pr ON pr.id_pessoa = r.id_profissional
+JOIN PESSOA pe ON pe.id_pessoa = pr.id_pessoa
+WHERE EXTRACT(YEAR FROM e.data_plantao) = EXTRACT(YEAR FROM CURRENT_DATE)
+  AND EXTRACT(MONTH FROM e.data_plantao) = EXTRACT(MONTH FROM CURRENT_DATE)
+GROUP BY u.nome, pe.nome
+ORDER BY u.nome, qtd_plantoes DESC;
