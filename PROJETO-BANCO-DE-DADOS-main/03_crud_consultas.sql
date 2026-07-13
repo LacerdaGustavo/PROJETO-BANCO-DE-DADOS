@@ -110,3 +110,37 @@ $$ LANGUAGE plpgsql;
 
 -- Exemplo de uso: listar procedimentos realizados no atendimento 1
 SELECT * FROM listar_procedimentos_atendimento(1);
+
+-- ------------------------------------------------------------
+-- 4) Atualizar os dados de um paciente
+-- (endereço ou convênio)
+-- ------------------------------------------------------------
+-- Function que recebe o id do paciente e, opcionalmente, o novo
+-- endereço e/ou novo número de convênio. Os parâmetros usam
+-- DEFAULT NULL, e o COALESCE garante que, se um parâmetro não
+-- for informado, o valor atual no banco é mantido (não é
+-- sobrescrito com NULL). Verifica se o paciente existe antes
+-- de tentar atualizar.
+
+CREATE OR REPLACE FUNCTION atualizar_dados_paciente(
+    p_id_paciente     INT,
+    p_endereco        VARCHAR(255) DEFAULT NULL,
+    p_num_convenio    VARCHAR(50)  DEFAULT NULL
+) RETURNS VOID AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM PACIENTE WHERE id_pessoa = p_id_paciente) THEN
+        RAISE EXCEPTION 'Paciente com id % não existe', p_id_paciente;
+    END IF;
+
+    UPDATE PACIENTE
+    SET endereco     = COALESCE(p_endereco, endereco),
+        num_convenio = COALESCE(p_num_convenio, num_convenio)
+    WHERE id_pessoa = p_id_paciente;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Exemplo de uso: atualiza só o endereço do paciente 1
+SELECT atualizar_dados_paciente(1, 'Rua das Flores, 123 - Campina Grande/PB');
+
+-- Exemplo de uso: atualiza só o convênio do paciente 3
+SELECT atualizar_dados_paciente(3, NULL, 'HAPVIDA-777');
