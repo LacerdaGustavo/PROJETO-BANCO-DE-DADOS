@@ -66,45 +66,15 @@ WHERE id_pessoa = 1;
 -- 5) Remover um procedimento realizado
 -- (apenas se ainda não houver faturamento associado)
 -- ------------------------------------------------------------
--- Function que recebe o id do atendimento e o id do procedimento
--- (chave composta de PROCEDIMENTO_REALIZADO). Verifica se o
--- registro existe e, em seguida, verifica a flag "faturado".
--- Caso já esteja estiver faturado, a remoção é bloqueada com RAISE
--- EXCEPTION; caso contrário, o registro é removido.
+-- DELETE puro com a condição faturado = FALSE direto no WHERE.
+-- Se o procedimento já estiver faturado, a condição não bate e
+-- 0 linhas são removidas (sem erro, mas também sem apagar dado
+-- que não deveria ser apagado).
 
-CREATE OR REPLACE FUNCTION remover_procedimento_realizado(
-    p_id_atendimento   INT,
-    p_id_procedimento  INT
-) RETURNS VOID AS $$
-DECLARE
-    v_faturado BOOLEAN;
-BEGIN
-    SELECT faturado INTO v_faturado
-    FROM PROCEDIMENTO_REALIZADO
-    WHERE id_atendimento = p_id_atendimento
-      AND id_procedimento = p_id_procedimento;
-
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Procedimento realizado (atendimento %, procedimento %) não existe',
-            p_id_atendimento, p_id_procedimento;
-    END IF;
-
-    IF v_faturado THEN
-        RAISE EXCEPTION 'Não é possível remover: procedimento já faturado';
-    END IF;
-
-    DELETE FROM PROCEDIMENTO_REALIZADO
-    WHERE id_atendimento = p_id_atendimento
-      AND id_procedimento = p_id_procedimento;
-END;
-$$ LANGUAGE plpgsql;
-
--- Exemplo de uso válido: remove o procedimento 2 do atendimento 8 (não faturado)
-SELECT remover_procedimento_realizado(8, 2);
-
--- Exemplo de uso inválido: marcar como faturado antes e tentar remover
--- UPDATE PROCEDIMENTO_REALIZADO SET faturado = TRUE WHERE id_atendimento = 1 AND id_procedimento = 1;
--- SELECT remover_procedimento_realizado(1, 1);
+DELETE FROM PROCEDIMENTO_REALIZADO
+WHERE id_atendimento = 6
+  AND id_procedimento = 10
+  AND faturado = FALSE;
 
 -- ------------------------------------------------------------
 -- 6) Calcular o tempo médio de duração dos atendimentos
