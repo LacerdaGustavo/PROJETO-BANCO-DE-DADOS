@@ -108,3 +108,11 @@ ADD COLUMN faturado BOOLEAN NOT NULL DEFAULT FALSE;
 -- atualização de dados (endereço ou convênio)
 ALTER TABLE PACIENTE
 ADD COLUMN endereco VARCHAR(255);
+
+-- Ajuste identificado durante a implementação do ponto 4
+-- (Consultas analíticas): coluna de data específica em ESCALA,
+-- necessária para filtrar plantões por "mês corrente". A tabela
+-- original só tinha dia_semana e turno (plantão recorrente),
+-- sem uma ocorrência real datada.
+ALTER TABLE ESCALA
+ADD COLUMN data_plantao DATE NOT NULL DEFAULT CURRENT_DATE;
