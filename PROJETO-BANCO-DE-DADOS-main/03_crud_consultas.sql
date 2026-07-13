@@ -78,3 +78,35 @@ $$ LANGUAGE plpgsql;
 
 -- Exemplo de uso: listar atendimentos do paciente 1
 SELECT * FROM listar_atendimentos_paciente(1);
+
+
+-- ------------------------------------------------------------
+-- 3) Listar os procedimentos realizados em um atendimento
+-- (com nome do procedimento, quantidade e tempo real)
+-- ------------------------------------------------------------
+-- Function que recebe o id do atendimento e retorna os
+-- procedimentos realizados nele, já com o nome do procedimento
+-- (via JOIN com PROCEDIMENTO), a quantidade e o tempo real gasto.
+
+CREATE OR REPLACE FUNCTION listar_procedimentos_atendimento(p_id_atendimento INT)
+RETURNS TABLE (
+    nome_procedimento    VARCHAR(150),
+    quantidade           INT,
+    tempo_real_minutos   INT
+) AS $$
+BEGIN
+    -- verifica se o atendimento existe antes de listar
+    IF NOT EXISTS (SELECT 1 FROM ATENDIMENTO WHERE id_atendimento = p_id_atendimento) THEN
+        RAISE EXCEPTION 'Atendimento com id % não existe', p_id_atendimento;
+    END IF;
+
+    RETURN QUERY
+    SELECT p.nome, pr.quantidade, pr.tempo_real_minutos
+    FROM PROCEDIMENTO_REALIZADO pr
+    JOIN PROCEDIMENTO p ON p.id_procedimento = pr.id_procedimento
+    WHERE pr.id_atendimento = p_id_atendimento;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Exemplo de uso: listar procedimentos realizados no atendimento 1
+SELECT * FROM listar_procedimentos_atendimento(1);
