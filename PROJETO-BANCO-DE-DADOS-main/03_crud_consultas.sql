@@ -26,35 +26,14 @@ WHERE EXISTS (SELECT 1 FROM PACIENTE WHERE id_pessoa = 1)
 -- 2) Listar todos os atendimentos de um paciente específico
 -- (ordenados por data)
 -- ------------------------------------------------------------
--- Function que recebe o id do paciente e retorna todos os
--- atendimentos dele, do mais antigo para o mais recente de
--- forma ordenada (data_hora ASC).
+-- SELECT puro que retorna todos os atendimentos do paciente
+-- informado (troque o valor 1 pelo id_paciente desejado),
+-- ordenados da data mais antiga para a mais recente.
 
-CREATE OR REPLACE FUNCTION listar_atendimentos_paciente(p_id_paciente INT)
-RETURNS TABLE (
-    id_atendimento   INT,
-    data_hora        TIMESTAMP,
-    duracao_minutos  INT,
-    id_residente     INT,
-    id_preceptor     INT
-) AS $$
-BEGIN
-    -- verifica se o paciente existe antes de listar
-    IF NOT EXISTS (SELECT 1 FROM PACIENTE WHERE id_pessoa = p_id_paciente) THEN
-        RAISE EXCEPTION 'Paciente com id % não existe', p_id_paciente;
-    END IF;
-
-    RETURN QUERY
-    SELECT a.id_atendimento, a.data_hora, a.duracao_minutos, a.id_residente, a.id_preceptor
-    FROM ATENDIMENTO a
-    WHERE a.id_paciente = p_id_paciente
-    ORDER BY a.data_hora ASC;
-END;
-$$ LANGUAGE plpgsql;
-
--- Exemplo de uso: listar atendimentos do paciente 1
-SELECT * FROM listar_atendimentos_paciente(1);
-
+SELECT id_atendimento, data_hora, duracao_minutos, id_residente, id_preceptor
+FROM ATENDIMENTO
+WHERE id_paciente = 1
+ORDER BY data_hora ASC;
 
 -- ------------------------------------------------------------
 -- 3) Listar os procedimentos realizados em um atendimento
