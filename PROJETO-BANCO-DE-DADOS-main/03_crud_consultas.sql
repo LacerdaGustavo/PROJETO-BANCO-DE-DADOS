@@ -39,32 +39,14 @@ ORDER BY data_hora ASC;
 -- 3) Listar os procedimentos realizados em um atendimento
 -- (com nome do procedimento, quantidade e tempo real)
 -- ------------------------------------------------------------
--- Function que recebe o id do atendimento e retorna os
--- procedimentos realizados nele, já com o nome do procedimento
--- (via JOIN com PROCEDIMENTO), a quantidade e o tempo real gasto.
+-- SELECT puro com JOIN entre PROCEDIMENTO_REALIZADO e PROCEDIMENTO
+-- para trazer o nome do procedimento (troque o valor 1 pelo
+-- id_atendimento desejado).
 
-CREATE OR REPLACE FUNCTION listar_procedimentos_atendimento(p_id_atendimento INT)
-RETURNS TABLE (
-    nome_procedimento    VARCHAR(150),
-    quantidade           INT,
-    tempo_real_minutos   INT
-) AS $$
-BEGIN
-    -- verifica se o atendimento existe antes de listar
-    IF NOT EXISTS (SELECT 1 FROM ATENDIMENTO WHERE id_atendimento = p_id_atendimento) THEN
-        RAISE EXCEPTION 'Atendimento com id % não existe', p_id_atendimento;
-    END IF;
-
-    RETURN QUERY
-    SELECT p.nome, pr.quantidade, pr.tempo_real_minutos
-    FROM PROCEDIMENTO_REALIZADO pr
-    JOIN PROCEDIMENTO p ON p.id_procedimento = pr.id_procedimento
-    WHERE pr.id_atendimento = p_id_atendimento;
-END;
-$$ LANGUAGE plpgsql;
-
--- Exemplo de uso: listar procedimentos realizados no atendimento 1
-SELECT * FROM listar_procedimentos_atendimento(1);
+SELECT p.nome, pr.quantidade, pr.tempo_real_minutos
+FROM PROCEDIMENTO_REALIZADO pr
+JOIN PROCEDIMENTO p ON p.id_procedimento = pr.id_procedimento
+WHERE pr.id_atendimento = 1;
 
 -- ------------------------------------------------------------
 -- 4) Atualizar os dados de um paciente
