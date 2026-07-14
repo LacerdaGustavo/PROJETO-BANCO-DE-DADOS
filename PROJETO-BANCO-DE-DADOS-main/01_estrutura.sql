@@ -96,6 +96,7 @@ CREATE TABLE PROCEDIMENTO_REALIZADO (
     quantidade INT NOT NULL DEFAULT 1,
     tempo_real_minutos INT NOT NULL,
     observacao TEXT,
+    faturado BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id_atendimento, id_procedimento),
     FOREIGN KEY (id_atendimento) REFERENCES ATENDIMENTO(id_atendimento) ON DELETE CASCADE,
     FOREIGN KEY (id_procedimento) REFERENCES PROCEDIMENTO(id_procedimento)
