@@ -34,7 +34,7 @@ CREATE TABLE PRECEPTOR (
     FOREIGN KEY (id_profissional) REFERENCES PROFISSIONAL(id_pessoa) ON DELETE CASCADE
 );
 
--- residentel (aluno)
+-- residente (aluno)
 CREATE TABLE RESIDENTE (
     id_profissional INT PRIMARY KEY,
     ano_residencia VARCHAR(2) NOT NULL,
@@ -58,6 +58,7 @@ CREATE TABLE ESCALA (
     turno VARCHAR(10) NOT NULL,
     id_residente INT NOT NULL,
     id_preceptor INT NOT NULL,
+    data_plantao DATE NOT NULL DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_unidade) REFERENCES UNIDADE(id_unidade),
     FOREIGN KEY (id_residente) REFERENCES RESIDENTE(id_profissional),
     FOREIGN KEY (id_preceptor) REFERENCES PRECEPTOR(id_profissional),
