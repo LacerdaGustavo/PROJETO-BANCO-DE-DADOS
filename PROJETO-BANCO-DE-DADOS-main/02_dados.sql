@@ -56,17 +56,17 @@ INSERT INTO UNIDADE (nome, tipo, capacidade_leitos) VALUES
 ('Enfermaria Pediátrica', 'Enfermaria', 30);
 
 -- 10 procedimentos (catalogo do hospital)
-INSERT INTO PROCEDIMENTO (codigo, nome, tempo_medio_minutos) VALUES
-('PR-001', 'Sutura Simples', 20),
-('PR-002', 'Coleta de Sangue', 10),
-('PR-003', 'Aplicação de Medicação IV', 15),
-('PR-004', 'Eletrocardiograma', 15),
-('PR-005', 'Raio-X de Tórax', 20),
-('PR-006', 'Intubação Orotraqueal', 30),
-('PR-007', 'Curativo Complexo', 45),
-('PR-008', 'Acesso Venoso Central', 40),
-('PR-009', 'Lavagem Gástrica', 25),
-('PR-010', 'Nebulização', 15);
+INSERT INTO PROCEDIMENTO (codigo, nome, tempo_medio_minutos, nivel_risco) VALUES
+('PR-001', 'Sutura Simples', 20, 'BAIXO'),
+('PR-002', 'Coleta de Sangue', 10, 'BAIXO'),
+('PR-003', 'Aplicação de Medicação IV', 15, 'BAIXO'),
+('PR-004', 'Eletrocardiograma', 15, 'BAIXO'),
+('PR-005', 'Raio-X de Tórax', 20, 'BAIXO'),
+('PR-006', 'Intubação Orotraqueal', 30, 'ALTO'),
+('PR-007', 'Curativo Complexo', 45, 'MEDIO'),
+('PR-008', 'Acesso Venoso Central', 40, 'ALTO'),
+('PR-009', 'Lavagem Gástrica', 25, 'ALTO'),
+('PR-010', 'Nebulização', 15, 'BAIXO');
 
 -- 10 atendimentos (as consultas com datas e médicos responsáveis)
 INSERT INTO ATENDIMENTO (data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor) VALUES
