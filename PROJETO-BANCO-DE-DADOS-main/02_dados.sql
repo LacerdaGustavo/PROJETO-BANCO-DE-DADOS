@@ -6,12 +6,12 @@ INSERT INTO PESSOA (nome, cpf, data_nascimento, is_flamengo, telefone) VALUES
 ('Daniela Costa', '444.444.444-44', '1975-08-05', FALSE, '83999994444'),
 ('Eduardo Melo', '555.555.555-55', '1995-12-30', TRUE, '83999995555');
 
-INSERT INTO PACIENTE (id_pessoa, num_convenio, alergias, grupo_sanguineo) VALUES
-(1, 'UNIMED-001', 'Nenhuma', 'O+'),
-(2, 'SULAMERICA-002', 'Dipirona', 'A-'),
-(3, NULL, 'Amendoim', 'AB+'),
-(4, 'BRADESCO-004', 'Nenhuma', 'B+'),
-(5, 'UNIMED-005', 'Iodo', 'O-');
+INSERT INTO PACIENTE (id_pessoa, num_convenio, alergias, grupo_sanguineo, endereco) VALUES
+(1, 'UNIMED-001', 'Nenhuma', 'O+', 'Rua A, 100 - Centro'),
+(2, 'SULAMERICA-002', 'Dipirona', 'A-', 'Rua B, 200 - Prata'),
+(3, NULL, 'Amendoim', 'AB+', 'Rua C, 300 - Malvinas'),
+(4, 'BRADESCO-004', 'Nenhuma', 'B+', 'Rua D, 400 - Catolé'),
+(5, 'UNIMED-005', 'Iodo', 'O-', 'Rua E, 500 - Bodocongó');
 
 -- 5 residentes
 INSERT INTO PESSOA (nome, cpf, data_nascimento, is_flamengo, telefone) VALUES
