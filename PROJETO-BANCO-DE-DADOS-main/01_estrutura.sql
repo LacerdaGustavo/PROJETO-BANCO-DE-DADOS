@@ -85,6 +85,8 @@ CREATE TABLE PROCEDIMENTO (
     codigo VARCHAR(20) UNIQUE NOT NULL,
     nome VARCHAR(150) NOT NULL,
     tempo_medio_minutos INT NOT NULL
+    nivel_risco VARCHAR(10) NOT NULL DEFAULT 'BAIXO',
+    CHECK (nivel_risco IN ('BAIXO', 'MEDIO', 'ALTO'))
 );
 
 -- procedimento realizado (o que foi feito na consulta)
