@@ -14,6 +14,7 @@ CREATE TABLE PACIENTE (
     num_convenio VARCHAR(50),
     alergias TEXT,
     grupo_sanguineo VARCHAR(3),
+    endereco VARCHAR(255),
     FOREIGN KEY (id_pessoa) REFERENCES PESSOA(id_pessoa) ON DELETE CASCADE
 );
 
