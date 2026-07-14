@@ -55,8 +55,6 @@ JOIN UNIDADE u ON u.id_unidade = e.id_unidade
 JOIN RESIDENTE r ON r.id_profissional = e.id_residente
 JOIN PROFISSIONAL pr ON pr.id_pessoa = r.id_profissional
 JOIN PESSOA pe ON pe.id_pessoa = pr.id_pessoa
-WHERE EXTRACT(YEAR FROM e.data_plantao) = EXTRACT(YEAR FROM CURRENT_DATE)
-  AND EXTRACT(MONTH FROM e.data_plantao) = EXTRACT(MONTH FROM CURRENT_DATE)
 GROUP BY u.nome, pe.nome
 ORDER BY u.nome, qtd_plantoes DESC;
 
