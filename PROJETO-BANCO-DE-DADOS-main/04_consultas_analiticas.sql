@@ -58,15 +58,13 @@ JOIN PESSOA pe ON pe.id_pessoa = pr.id_pessoa
 GROUP BY u.nome, pe.nome
 ORDER BY u.nome, qtd_plantoes DESC;
 
--- ------------------------------------------------------------
--- 4) Listar pacientes que nunca realizaram nenhum procedimento
--- de nível de risco 'ALTO'
--- ------------------------------------------------------------
--- SELECT puro usando NOT IN com subconsulta: busca os pacientes
--- cujo id_pessoa não aparece entre os que já realizaram algum
--- procedimento de risco ALTO (via ATENDIMENTO + PROCEDIMENTO_REALIZADO
--- + PROCEDIMENTO).
+-- listagem de pacientes que nao tiveram atendimentos com procedimentos de alto risco
+ALTER TABLE PROCEDIMENTO ADD COLUMN nivel_risco VARCHAR(10) DEFAULT 'BAIXO';
 
+-- define os procediementos de alto risco
+UPDATE PROCEDIMENTO SET nivel_risco = 'ALTO' WHERE codigo IN ('PR-006', 'PR-008');
+
+-- a consulta abaixo lista os pacientes que não tiveram atendimentos com procedimentos de alto risco, usando JOINs e subquery para filtrar os pacientes que tiveram atendimentos com procedimentos de alto risco!!!! se atentem a essa add
 SELECT pe.nome AS nome_paciente
 FROM PACIENTE pa
 JOIN PESSOA pe ON pe.id_pessoa = pa.id_pessoa
