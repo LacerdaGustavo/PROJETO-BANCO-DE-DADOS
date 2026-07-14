@@ -102,36 +102,3 @@ CREATE TABLE PROCEDIMENTO_REALIZADO (
     FOREIGN KEY (id_procedimento) REFERENCES PROCEDIMENTO(id_procedimento)
 );
 
--- Ajuste identificado durante a implementação do ponto 3 (CRUD):
--- flag para controlar se o procedimento já foi faturado,
--- necessária para a regra de remoção segura
-ALTER TABLE PROCEDIMENTO_REALIZADO
-ADD COLUMN faturado BOOLEAN NOT NULL DEFAULT FALSE;
-
--- Ajuste identificado durante a implementação do ponto 3 (CRUD):
--- endereco do paciente, necessário para atender ao requisito de
--- atualização de dados (endereço ou convênio)
-ALTER TABLE PACIENTE
-ADD COLUMN endereco VARCHAR(255);
-
--- Ajuste identificado durante a implementação do ponto 4
--- (Consultas analíticas): coluna de data específica em ESCALA,
--- necessária para filtrar plantões por "mês corrente". A tabela
--- original só tinha dia_semana e turno (plantão recorrente),
--- sem uma ocorrência real datada.
-ALTER TABLE ESCALA
-ADD COLUMN data_plantao DATE NOT NULL DEFAULT CURRENT_DATE;
-
--- Ajuste identificado durante a implementação do ponto 4
--- (Consultas analíticas): coluna de nível de risco em
--- PROCEDIMENTO, necessária para identificar procedimentos de
--- risco 'ALTO'. A tabela original não previa essa classificação.
-ALTER TABLE PROCEDIMENTO
-ADD COLUMN nivel_risco VARCHAR(10) NOT NULL DEFAULT 'BAIXO'
-CHECK (nivel_risco IN ('BAIXO', 'MEDIO', 'ALTO'));
-
--- Marca alguns procedimentos como de risco 'ALTO', para permitir
--- testar a consulta de pacientes que nunca realizaram
--- procedimento de risco 'ALTO'.
-UPDATE PROCEDIMENTO SET nivel_risco = 'ALTO'
-WHERE nome IN ('Intubação Orotraqueal', 'Acesso Venoso Central', 'Lavagem Gástrica');
