@@ -61,7 +61,7 @@ ORDER BY u.nome, qtd_plantoes DESC;
 -- listagem de pacientes que nao tiveram atendimentos com procedimentos de alto risco
 ALTER TABLE PROCEDIMENTO ADD COLUMN nivel_risco VARCHAR(10) DEFAULT 'BAIXO';
 
--- define os procediementos de alto risco
+-- define os procedimentos de alto risco
 UPDATE PROCEDIMENTO SET nivel_risco = 'ALTO' WHERE codigo IN ('PR-006', 'PR-008');
 
 -- a consulta abaixo lista os pacientes que não tiveram atendimentos com procedimentos de alto risco, usando JOINs e subquery para filtrar os pacientes que tiveram atendimentos com procedimentos de alto risco!!!! se atentem a essa add
