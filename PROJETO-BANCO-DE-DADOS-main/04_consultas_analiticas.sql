@@ -35,7 +35,7 @@ JOIN ATENDIMENTO a ON a.id_preceptor = pc.id_profissional
 WHERE EXTRACT(YEAR FROM a.data_hora) = 2026
   AND EXTRACT(MONTH FROM a.data_hora) = 7
 GROUP BY pe.nome
-HAVING COUNT(a.id_atendimento) > 5
+HAVING COUNT(a.id_atendimento) > 1 
 ORDER BY total_atendimentos DESC;
 
 -- ------------------------------------------------------------
