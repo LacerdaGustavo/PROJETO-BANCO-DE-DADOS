@@ -52,10 +52,9 @@ WHERE pr.id_atendimento = 1;
 -- 4) Atualizar os dados de um paciente
 -- (endereço ou convênio)
 -- ------------------------------------------------------------
--- UPDATE puro. COALESCE não é exclusivo de PL/pgSQL, funciona
--- normalmente em SQL puro: se um valor não for informado (NULL),
--- mantém o valor atual da coluna. Troque os valores conforme o
--- paciente e o dado que quiser atualizar.
+-- -- UPDATE puro. Atualiza endereço e/ou convênio do paciente.
+-- Troque os valores conforme o paciente e o dado que quiser
+-- atualizar.
 
 UPDATE PACIENTE
 SET endereco     = 'Rua das Flores, 123 - Campina Grande/PB',
