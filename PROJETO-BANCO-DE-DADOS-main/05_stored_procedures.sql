@@ -88,3 +88,59 @@ $$ LANGUAGE plpgsql;
 
 -- Exemplo de uso: tempo médio de espera por unidade
 SELECT * FROM sp_calcular_tempo_medio_espera();
+
+-- ------------------------------------------------------------
+-- sp_reajustar_escala
+-- ------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE sp_reajustar_escala(
+    p_id_residente  INT,
+    p_dia_atual     VARCHAR,
+    p_turno_atual   VARCHAR,
+    p_dia_novo      VARCHAR,
+    p_turno_novo    VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_escala       RECORD;
+    v_qtd_movidas  INT := 0;
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM RESIDENTE WHERE id_profissional = p_id_residente) THEN
+        RAISE EXCEPTION 'Residente com id % não existe', p_id_residente;
+    END IF;
+
+    FOR v_escala IN
+        SELECT id_escala, id_unidade
+        FROM ESCALA
+        WHERE id_residente = p_id_residente
+          AND dia_semana = p_dia_atual
+          AND turno = p_turno_atual
+    LOOP
+        IF EXISTS (
+            SELECT 1 FROM ESCALA
+            WHERE id_residente = p_id_residente
+              AND id_unidade = v_escala.id_unidade
+              AND dia_semana = p_dia_novo
+              AND turno = p_turno_novo
+              AND id_escala <> v_escala.id_escala
+        ) THEN
+            RAISE EXCEPTION 'Conflito: residente % já possui escala na unidade % em %/% (reajuste revertido)',
+                p_id_residente, v_escala.id_unidade, p_dia_novo, p_turno_novo;
+        END IF;
+
+        UPDATE ESCALA
+        SET dia_semana = p_dia_novo,
+            turno = p_turno_novo
+        WHERE id_escala = v_escala.id_escala;
+
+        v_qtd_movidas := v_qtd_movidas + 1;
+    END LOOP;
+
+    IF v_qtd_movidas = 0 THEN
+        RAISE NOTICE 'Nenhuma escala encontrada para o residente % em %/%', p_id_residente, p_dia_atual, p_turno_atual;
+    ELSE
+        RAISE NOTICE '% escala(s) movida(s) de %/% para %/%', v_qtd_movidas, p_dia_atual, p_turno_atual, p_dia_novo, p_turno_novo;
+    END IF;
+END;
+$$;
