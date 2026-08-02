@@ -148,106 +148,21 @@ def listar_pacientes_combo():
     return pacientes 
 
 
+def listar_pacientes_combo():
+    return orm.listar_pacientes_combo()
+
+
 def listar_residentes_combo():
-
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-            r.id_profissional,
-            pe.nome
-        FROM residente r
-        JOIN profissional pr
-            ON r.id_profissional = pr.id_pessoa
-        JOIN pessoa pe
-            ON pr.id_pessoa = pe.id_pessoa
-        ORDER BY pe.nome
-    """)
-
-    residentes = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-
-    return residentes
+    return orm.listar_residentes_combo()
 
 
 def listar_preceptores_combo():
-
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-            p.id_profissional,
-            pe.nome
-        FROM preceptor p
-        JOIN profissional pr
-            ON p.id_profissional = pr.id_pessoa
-        JOIN pessoa pe
-            ON pr.id_pessoa = pe.id_pessoa
-        ORDER BY pe.nome
-    """)
-
-    preceptores = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-
-    return preceptores
-
-
+    return orm.listar_preceptores_combo()
 
 def listar_atendimentos():
+    return orm.listar_atendimentos()
 
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-
-            a.id_atendimento,
-
-            pac.nome,
-
-            res.nome,
-
-            pre.nome,
-
-            a.data_hora,
-
-            a.duracao_minutos
-
-        FROM atendimento a
-
-        JOIN pessoa pac
-            ON a.id_paciente = pac.id_pessoa
-
-        JOIN profissional pr_res
-            ON a.id_residente = pr_res.id_pessoa
-
-        JOIN pessoa res
-            ON pr_res.id_pessoa = res.id_pessoa
-
-        JOIN profissional pr_pre
-            ON a.id_preceptor = pr_pre.id_pessoa
-
-        JOIN pessoa pre
-            ON pr_pre.id_pessoa = pre.id_pessoa
-
-        ORDER BY a.data_hora DESC
-    """)
-
-    atendimentos = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-
-    return atendimentos
+    
 
 
 def cadastrar_atendimento(
@@ -258,91 +173,19 @@ def cadastrar_atendimento(
     duracao
 ):
 
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    data_hora = datetime.strptime(
-        data_hora.strip(),
-        "%d/%m/%Y %H:%M"
-    )
-
-    cursor.execute("""
-        INSERT INTO atendimento
-        (
-            data_hora,
-            duracao_minutos,
-            id_paciente,
-            id_residente,
-            id_preceptor
-        )
-
-        VALUES
-        (
-            %s,
-            %s,
-            %s,
-            %s,
-            %s
-        )
-    """, (
-        data_hora,
-        duracao,
+    return orm.cadastrar_atendimento(
         id_paciente,
         id_residente,
-        id_preceptor
-    ))
-
-    conexao.commit()
-
-    cursor.close()
-
-    conexao.close()
+        id_preceptor,
+        data_hora,
+        duracao
+    )
 
 
 
 def listar_atendimentos_paciente(id_paciente):
 
-    conexao = conectar()
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-            a.id_atendimento,
-            pac.nome,
-            res.nome,
-            pre.nome,
-            a.data_hora,
-            a.duracao_minutos
-
-        FROM atendimento a
-
-        JOIN pessoa pac
-            ON a.id_paciente = pac.id_pessoa
-
-        JOIN profissional pr_res
-            ON a.id_residente = pr_res.id_pessoa
-
-        JOIN pessoa res
-            ON pr_res.id_pessoa = res.id_pessoa
-
-        JOIN profissional pr_pre
-            ON a.id_preceptor = pr_pre.id_pessoa
-
-        JOIN pessoa pre
-            ON pr_pre.id_pessoa = pre.id_pessoa
-
-        WHERE a.id_paciente = %s
-
-        ORDER BY a.data_hora;
-    """, (id_paciente,))
-
-    dados = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-
-    return dados
+    return orm.listar_atendimentos_paciente(id_paciente)
 
 
 def listar_procedimentos_atendimento(id_atendimento):

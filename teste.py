@@ -1,5 +1,4 @@
-from backend.crud import excluir_paciente
+from frontend.backend.crud import listar_atendimentos
 
-excluir_paciente(19)   # mesmo ID utilizado acima
-
-print("Paciente removido!")
+for atendimento in listar_atendimentos():
+    print(atendimento)

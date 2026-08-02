@@ -1,9 +1,21 @@
 from sqlalchemy import select
 
 from backend.database import SessionLocal
-from backend.models import Pessoa, Paciente
+
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
+
+
+from sqlalchemy.orm import aliased
+
+from backend.models import (
+    Pessoa,
+    Paciente,
+    Profissional,
+    Residente,
+    Preceptor,
+    Atendimento
+)
 
 
 def listar_pacientes():
@@ -219,6 +231,337 @@ def excluir_paciente(id_pessoa):
     except Exception:
         session.rollback()
         raise
+
+    finally:
+
+        session.close()
+
+
+
+
+def listar_atendimentos():
+
+    session = SessionLocal()
+
+    try:
+
+        paciente_pessoa = aliased(Pessoa)
+        residente_pessoa = aliased(Pessoa)
+        preceptor_pessoa = aliased(Pessoa)
+
+        residente_prof = aliased(Profissional)
+        preceptor_prof = aliased(Profissional)
+
+        resultado = session.execute(
+
+            select(
+
+                Atendimento.id_atendimento,
+
+                paciente_pessoa.nome,
+
+                residente_pessoa.nome,
+
+                preceptor_pessoa.nome,
+
+                Atendimento.data_hora,
+
+                Atendimento.duracao_minutos
+
+            )
+
+            .join(
+                Paciente,
+                Atendimento.id_paciente == Paciente.id_pessoa
+            )
+
+            .join(
+                paciente_pessoa,
+                Paciente.id_pessoa == paciente_pessoa.id_pessoa
+            )
+
+            .join(
+                Residente,
+                Atendimento.id_residente == Residente.id_profissional
+            )
+
+            .join(
+                residente_prof,
+                Residente.id_profissional == residente_prof.id_pessoa
+            )
+
+            .join(
+                residente_pessoa,
+                residente_prof.id_pessoa == residente_pessoa.id_pessoa
+            )
+
+            .join(
+                Preceptor,
+                Atendimento.id_preceptor == Preceptor.id_profissional
+            )
+
+            .join(
+                preceptor_prof,
+                Preceptor.id_profissional == preceptor_prof.id_pessoa
+            )
+
+            .join(
+                preceptor_pessoa,
+                preceptor_prof.id_pessoa == preceptor_pessoa.id_pessoa
+            )
+
+            .order_by(
+                Atendimento.data_hora.desc()
+            )
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+def listar_pacientes_combo():
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+                Pessoa.id_pessoa,
+                Pessoa.nome
+            )
+
+            .join(
+                Paciente,
+                Pessoa.id_pessoa == Paciente.id_pessoa
+            )
+
+            .order_by(Pessoa.nome)
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+
+
+def listar_residentes_combo():
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+                Residente.id_profissional,
+                Pessoa.nome
+            )
+
+            .join(
+                Profissional,
+                Residente.id_profissional == Profissional.id_pessoa
+            )
+
+            .join(
+                Pessoa,
+                Profissional.id_pessoa == Pessoa.id_pessoa
+            )
+
+            .order_by(Pessoa.nome)
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+
+
+def listar_preceptores_combo():
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+                Preceptor.id_profissional,
+                Pessoa.nome
+            )
+
+            .join(
+                Profissional,
+                Preceptor.id_profissional == Profissional.id_pessoa
+            )
+
+            .join(
+                Pessoa,
+                Profissional.id_pessoa == Pessoa.id_pessoa
+            )
+
+            .order_by(Pessoa.nome)
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+def cadastrar_atendimento(
+    id_paciente,
+    id_residente,
+    id_preceptor,
+    data_hora,
+    duracao
+):
+
+    session = SessionLocal()
+
+    try:
+
+        data_hora = datetime.strptime(
+            data_hora.strip(),
+            "%d/%m/%Y %H:%M"
+        )
+
+        atendimento = Atendimento(
+
+            data_hora=data_hora,
+
+            duracao_minutos=duracao,
+
+            id_paciente=id_paciente,
+
+            id_residente=id_residente,
+
+            id_preceptor=id_preceptor
+
+        )
+
+        session.add(atendimento)
+
+        session.commit()
+
+    except Exception:
+
+        session.rollback()
+
+        raise
+
+    finally:
+
+        session.close()
+
+
+
+
+def listar_atendimentos_paciente(id_paciente):
+
+    session = SessionLocal()
+
+    try:
+
+        paciente_pessoa = aliased(Pessoa)
+        residente_pessoa = aliased(Pessoa)
+        preceptor_pessoa = aliased(Pessoa)
+
+        residente_prof = aliased(Profissional)
+        preceptor_prof = aliased(Profissional)
+
+        resultado = session.execute(
+
+            select(
+
+                Atendimento.id_atendimento,
+
+                paciente_pessoa.nome,
+
+                residente_pessoa.nome,
+
+                preceptor_pessoa.nome,
+
+                Atendimento.data_hora,
+
+                Atendimento.duracao_minutos
+
+            )
+
+            .join(
+                Paciente,
+                Atendimento.id_paciente == Paciente.id_pessoa
+            )
+
+            .join(
+                paciente_pessoa,
+                Paciente.id_pessoa == paciente_pessoa.id_pessoa
+            )
+
+            .join(
+                Residente,
+                Atendimento.id_residente == Residente.id_profissional
+            )
+
+            .join(
+                residente_prof,
+                Residente.id_profissional == residente_prof.id_pessoa
+            )
+
+            .join(
+                residente_pessoa,
+                residente_prof.id_pessoa == residente_pessoa.id_pessoa
+            )
+
+            .join(
+                Preceptor,
+                Atendimento.id_preceptor == Preceptor.id_profissional
+            )
+
+            .join(
+                preceptor_prof,
+                Preceptor.id_profissional == preceptor_prof.id_pessoa
+            )
+
+            .join(
+                preceptor_pessoa,
+                preceptor_prof.id_pessoa == preceptor_pessoa.id_pessoa
+            )
+
+            .where(
+                Atendimento.id_paciente == id_paciente
+            )
+
+            .order_by(
+                Atendimento.data_hora
+            )
+
+        )
+
+        return [tuple(linha) for linha in resultado]
 
     finally:
 
