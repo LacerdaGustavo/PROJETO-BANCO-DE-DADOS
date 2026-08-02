@@ -1,4 +1,5 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
+from sqlalchemy import extract
 
 from backend.database import SessionLocal
 
@@ -16,7 +17,9 @@ from backend.models import (
     Preceptor,
     Atendimento,
     Procedimento,
-    ProcedimentoRealizado
+    ProcedimentoRealizado,
+    Unidade,
+    Escala
 )
 
 
@@ -720,4 +723,253 @@ def excluir_procedimento_realizado(
 
     finally:
 
+        session.close()
+
+
+
+
+
+def calcular_tempo_medio_residente():
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+
+                Pessoa.nome,
+
+                func.round(
+                    func.avg(Atendimento.duracao_minutos),
+                    2
+                )
+
+            )
+
+            .join(
+                Profissional,
+                Atendimento.id_residente == Profissional.id_pessoa
+            )
+
+            .join(
+                Pessoa,
+                Profissional.id_pessoa == Pessoa.id_pessoa
+            )
+
+            .group_by(Pessoa.nome)
+
+            .order_by(Pessoa.nome)
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+
+def ranking_residentes():
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+
+                Pessoa.nome,
+
+                func.count()
+
+            )
+
+            .select_from(Atendimento)
+
+            .join(
+                Profissional,
+                Atendimento.id_residente == Profissional.id_pessoa
+            )
+
+            .join(
+                Pessoa,
+                Profissional.id_pessoa == Pessoa.id_pessoa
+            )
+
+            .group_by(Pessoa.nome)
+
+            .order_by(
+                func.count().desc()
+            )
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+def preceptores_mes(mes, ano):
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+
+                Pessoa.nome,
+
+                func.count()
+
+            )
+
+            .select_from(Atendimento)
+
+            .join(
+                Profissional,
+                Atendimento.id_preceptor == Profissional.id_pessoa
+            )
+
+            .join(
+                Pessoa,
+                Profissional.id_pessoa == Pessoa.id_pessoa
+            )
+
+            .where(
+                extract("month", Atendimento.data_hora) == mes,
+                extract("year", Atendimento.data_hora) == ano
+            )
+
+            .group_by(Pessoa.nome)
+
+            .having(
+                func.count() > 5
+            )
+
+            .order_by(
+                func.count().desc()
+            )
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+def pacientes_sem_risco_alto():
+
+    session = SessionLocal()
+
+    try:
+
+        subconsulta = (
+
+            select(Atendimento.id_paciente)
+
+            .join(
+                ProcedimentoRealizado,
+                Atendimento.id_atendimento ==
+                ProcedimentoRealizado.id_atendimento
+            )
+
+            .join(
+                Procedimento,
+                ProcedimentoRealizado.id_procedimento ==
+                Procedimento.id_procedimento
+            )
+
+            .where(
+                Procedimento.nivel_risco == "ALTO"
+            )
+
+            .distinct()
+
+        )
+
+        resultado = session.execute(
+
+            select(Pessoa.nome)
+
+            .join(
+                Paciente,
+                Pessoa.id_pessoa == Paciente.id_pessoa
+            )
+
+            .where(
+                ~Paciente.id_pessoa.in_(subconsulta)
+            )
+
+            .order_by(Pessoa.nome)
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+def plantoes_residente():
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+                Unidade.nome,
+                Pessoa.nome,
+                func.count()
+            )
+
+            .select_from(Escala)
+
+            .join(
+                Unidade,
+                Escala.id_unidade == Unidade.id_unidade
+            )
+
+            .join(
+                Profissional,
+                Escala.id_residente == Profissional.id_pessoa
+            )
+
+            .join(
+                Pessoa,
+                Profissional.id_pessoa == Pessoa.id_pessoa
+            )
+
+            .group_by(
+                Unidade.nome,
+                Pessoa.nome
+            )
+
+            .order_by(
+                Unidade.nome,
+                Pessoa.nome
+            )
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
         session.close()

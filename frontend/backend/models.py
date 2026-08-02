@@ -195,5 +195,50 @@ class ProcedimentoRealizado(Base):
 
 
 
+class Unidade(Base):
+    __tablename__ = "unidade"
 
+    id_unidade = Column(Integer, primary_key=True)
+
+    nome = Column(String)
+
+    tipo = Column(String)
+
+    capacidade_leitos = Column(Integer)
+
+
+
+
+
+class Escala(Base):
+    __tablename__ = "escala"
+
+    id_escala = Column(Integer, primary_key=True)
+
+    id_unidade = Column(
+        Integer,
+        ForeignKey("unidade.id_unidade")
+    )
+
+    dia_semana = Column(String)
+
+    turno = Column(String)
+
+    id_residente = Column(
+        Integer,
+        ForeignKey("residente.id_profissional")
+    )
+
+    id_preceptor = Column(
+        Integer,
+        ForeignKey("preceptor.id_profissional")
+    )
+
+    data_plantao = Column(Date)
+
+    unidade = relationship("Unidade")
+
+    residente = relationship("Residente")
+
+    preceptor = relationship("Preceptor")
 
