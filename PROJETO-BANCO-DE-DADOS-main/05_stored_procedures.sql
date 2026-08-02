@@ -50,3 +50,41 @@ BEGIN
     RAISE NOTICE 'Atendimento % registrado com sucesso, com % procedimento(s)', v_id_atendimento, jsonb_array_length(p_procedimentos);
 END;
 $$;
+
+-- ------------------------------------------------------------
+-- sp_calcular_tempo_medio_espera
+-- ------------------------------------------------------------
+-- Implementada como FUNCTION (com RETURNS TABLE), já que o
+-- objetivo é devolver um conjunto de linhas (uma por unidade),
+-- diferente de sp_registrar_atendimento_completo que executa
+-- uma ação.
+
+CREATE OR REPLACE FUNCTION sp_calcular_tempo_medio_espera()
+RETURNS TABLE (
+    id_unidade                    INT,
+    nome_unidade                  VARCHAR(100),
+    qtd_atendimentos_considerados INT,
+    tempo_medio_espera_minutos    NUMERIC
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        u.id_unidade,
+        u.nome,
+        COUNT(DISTINCT a.id_atendimento)::INT,
+        ROUND(AVG(EXTRACT(EPOCH FROM (pr_min.primeiro_inicio - a.data_hora)) / 60), 2)
+    FROM ATENDIMENTO a
+    JOIN UNIDADE u ON u.id_unidade = a.id_unidade
+    JOIN (
+        SELECT id_atendimento, MIN(hora_inicio) AS primeiro_inicio
+        FROM PROCEDIMENTO_REALIZADO
+        WHERE hora_inicio IS NOT NULL
+        GROUP BY id_atendimento
+    ) pr_min ON pr_min.id_atendimento = a.id_atendimento
+    GROUP BY u.id_unidade, u.nome
+    ORDER BY u.id_unidade;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Exemplo de uso: tempo médio de espera por unidade
+SELECT * FROM sp_calcular_tempo_medio_espera();
