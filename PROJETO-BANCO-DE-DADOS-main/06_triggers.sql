@@ -34,8 +34,57 @@ EXECUTE FUNCTION fn_check_sobreposicao_escala();
 INSERT INTO ESCALA (id_unidade, dia_semana, turno, id_residente, id_preceptor, data_plantao)
 VALUES (2, 'Sexta', 'Manhã', 9, 14, '2026-07-17');
 
--- Exemplo de uso inválido: residente 6 já está em Sábado/Noite na
--- unidade 1 (dado de teste original). Tentar escalar ele no mesmo
--- Sábado/Noite em OUTRA unidade (ex: 2) deve disparar o erro.
--- INSERT INTO ESCALA (id_unidade, dia_semana, turno, id_residente, id_preceptor, data_plantao)
--- VALUES (2, 'Sábado', 'Noite', 6, 12, '2026-07-18');
+-- ------------------------------------------------------------
+-- trg_audita_atendimento
+-- ------------------------------------------------------------
+-- Tabela de auditoria: registra toda inserção, atualização ou
+-- remoção feita em ATENDIMENTO, guardando o estado antes/depois
+-- em JSON e quem fez a operação.
+--
+-- Sobre a coluna "usuario": o valor é capturado a partir de uma
+-- variável de sessão do PostgreSQL (app.usuario_atual), definida
+-- via SET antes de cada operação, simulando "quem" está agindo.
+-- Se essa variável não for definida, o valor cai para 'sistema'
+-- por padrão, usando COALESCE + current_setting(..., true).
+
+CREATE TABLE IF NOT EXISTS AUDITORIA_ATENDIMENTO (
+    id_auditoria    SERIAL PRIMARY KEY,
+    id_atendimento  INT NOT NULL,
+    operacao        VARCHAR(10) NOT NULL CHECK (operacao IN ('INSERT', 'UPDATE', 'DELETE')),
+    usuario         VARCHAR(100) NOT NULL,
+    data_hora       TIMESTAMP NOT NULL DEFAULT NOW(),
+    dados_antigos   JSONB,
+    dados_novos     JSONB
+);
+
+CREATE OR REPLACE FUNCTION fn_audita_atendimento()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_usuario VARCHAR(100);
+BEGIN
+    v_usuario := COALESCE(current_setting('app.usuario_atual', true), 'sistema');
+
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO AUDITORIA_ATENDIMENTO (id_atendimento, operacao, usuario, dados_antigos, dados_novos)
+        VALUES (NEW.id_atendimento, 'INSERT', v_usuario, NULL, to_jsonb(NEW));
+        RETURN NEW;
+
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO AUDITORIA_ATENDIMENTO (id_atendimento, operacao, usuario, dados_antigos, dados_novos)
+        VALUES (NEW.id_atendimento, 'UPDATE', v_usuario, to_jsonb(OLD), to_jsonb(NEW));
+        RETURN NEW;
+
+    ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO AUDITORIA_ATENDIMENTO (id_atendimento, operacao, usuario, dados_antigos, dados_novos)
+        VALUES (OLD.id_atendimento, 'DELETE', v_usuario, to_jsonb(OLD), NULL);
+        RETURN OLD;
+    END IF;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_audita_atendimento
+AFTER INSERT OR UPDATE OR DELETE ON ATENDIMENTO
+FOR EACH ROW
+EXECUTE FUNCTION fn_audita_atendimento();
