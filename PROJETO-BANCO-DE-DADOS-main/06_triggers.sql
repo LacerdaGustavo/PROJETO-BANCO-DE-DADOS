@@ -88,3 +88,32 @@ CREATE TRIGGER trg_audita_atendimento
 AFTER INSERT OR UPDATE OR DELETE ON ATENDIMENTO
 FOR EACH ROW
 EXECUTE FUNCTION fn_audita_atendimento();
+
+-- ------------------------------------------------------------
+-- trg_atualiza_media_procedimentos
+-- ------------------------------------------------------------
+-- AFTER INSERT em PROCEDIMENTO_REALIZADO. Toda vez que um novo
+-- procedimento realizado é registrado, recalcula a média de
+-- tempo_real_minutos daquele procedimento (considerando todas
+-- as vezes que ele já foi realizado) e atualiza a coluna
+-- media_tempo_procedimento em PROCEDIMENTO.
+
+CREATE OR REPLACE FUNCTION fn_atualiza_media_procedimentos()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE PROCEDIMENTO
+    SET media_tempo_procedimento = (
+        SELECT ROUND(AVG(tempo_real_minutos), 2)
+        FROM PROCEDIMENTO_REALIZADO
+        WHERE id_procedimento = NEW.id_procedimento
+    )
+    WHERE id_procedimento = NEW.id_procedimento;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_atualiza_media_procedimentos
+AFTER INSERT ON PROCEDIMENTO_REALIZADO
+FOR EACH ROW
+EXECUTE FUNCTION fn_atualiza_media_procedimentos();
