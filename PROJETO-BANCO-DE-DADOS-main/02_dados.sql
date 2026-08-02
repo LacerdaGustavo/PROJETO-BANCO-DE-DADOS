@@ -105,3 +105,21 @@ INSERT INTO ESCALA (id_unidade, dia_semana, turno, id_residente, id_preceptor, d
 (3, 'Segunda', 'Tarde', 8, 13, '2026-07-13'),
 (1, 'Terça',   'Noite', 9, 14, '2026-07-14'),
 (2, 'Quarta',  'Manhã', 10, 11, '2026-07-15');
+
+-- Popular id_unidade nos atendimentos de teste (distribuindo entre as 3 unidades) (Etapa 2)
+UPDATE ATENDIMENTO SET id_unidade = 1 WHERE id_atendimento IN (1, 2, 6, 7);
+UPDATE ATENDIMENTO SET id_unidade = 2 WHERE id_atendimento IN (3, 8);
+UPDATE ATENDIMENTO SET id_unidade = 3 WHERE id_atendimento IN (4, 5, 9, 10);
+
+-- Popular hora_inicio nos procedimentos realizados de teste
+-- (simulando um pequeno intervalo entre a chegada do paciente e o início do procedimento) (Etapa 2)
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-10 08:45:00' WHERE id_atendimento = 1 AND id_procedimento = 1;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-10 09:30:00' WHERE id_atendimento = 2 AND id_procedimento = 2;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-11 10:20:00' WHERE id_atendimento = 3 AND id_procedimento = 3;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-11 11:45:00' WHERE id_atendimento = 4 AND id_procedimento = 4;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-12 14:20:00' WHERE id_atendimento = 5 AND id_procedimento = 6;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-12 16:00:00' WHERE id_atendimento = 6 AND id_procedimento = 10;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-13 07:15:00' WHERE id_atendimento = 7 AND id_procedimento = 8;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-13 09:40:00' WHERE id_atendimento = 8 AND id_procedimento = 2;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-13 10:30:00' WHERE id_atendimento = 9 AND id_procedimento = 5;
+UPDATE PROCEDIMENTO_REALIZADO SET hora_inicio = '2026-07-13 11:20:00' WHERE id_atendimento = 10 AND id_procedimento = 7;
