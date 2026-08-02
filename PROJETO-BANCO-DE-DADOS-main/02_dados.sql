@@ -106,6 +106,19 @@ INSERT INTO ESCALA (id_unidade, dia_semana, turno, id_residente, id_preceptor, d
 (1, 'Terça',   'Noite', 9, 14, '2026-07-14'),
 (2, 'Quarta',  'Manhã', 10, 11, '2026-07-15');
 
+
+INSERT INTO INTERNACAO
+(id_paciente, id_unidade, id_preceptor, data_entrada, data_alta, leito, diagnostico)
+VALUES
+(1, 1, 11, '2026-07-10 08:00', NULL, 'A101', 'Pneumonia'),
+
+(2, 2, 12, '2026-07-11 09:00', '2026-07-15 15:00', 'B205', 'Fratura de fêmur'),
+
+(3, 3, 13, '2026-07-12 10:30', NULL, 'C310', 'Infecção urinária');
+
+
+
+
 -- Popular id_unidade nos atendimentos de teste (distribuindo entre as 3 unidades) (Etapa 2)
 UPDATE ATENDIMENTO SET id_unidade = 1 WHERE id_atendimento IN (1, 2, 6, 7);
 UPDATE ATENDIMENTO SET id_unidade = 2 WHERE id_atendimento IN (3, 8);

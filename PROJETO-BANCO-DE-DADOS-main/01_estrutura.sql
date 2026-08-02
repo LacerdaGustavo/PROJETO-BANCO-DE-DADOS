@@ -105,3 +105,25 @@ CREATE TABLE PROCEDIMENTO_REALIZADO (
     FOREIGN KEY (id_atendimento) REFERENCES ATENDIMENTO(id_atendimento) ON DELETE CASCADE,
     FOREIGN KEY (id_procedimento) REFERENCES PROCEDIMENTO(id_procedimento)
 );
+
+
+-- 11. internacao
+CREATE TABLE INTERNACAO (
+    id_internacao SERIAL PRIMARY KEY,
+    id_paciente INT NOT NULL,
+    id_unidade INT NOT NULL,
+    id_preceptor INT NOT NULL,
+    data_entrada TIMESTAMP NOT NULL,
+    data_alta TIMESTAMP,
+    leito VARCHAR(10) NOT NULL,
+    diagnostico TEXT,
+
+    FOREIGN KEY (id_paciente)
+        REFERENCES PACIENTE(id_pessoa),
+
+    FOREIGN KEY (id_unidade)
+        REFERENCES UNIDADE(id_unidade),
+
+    FOREIGN KEY (id_preceptor)
+        REFERENCES PRECEPTOR(id_profissional)
+);

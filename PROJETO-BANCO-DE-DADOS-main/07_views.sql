@@ -73,3 +73,38 @@ GROUP BY
 ORDER BY
     mes,
     unidade;
+
+
+
+
+CREATE OR REPLACE VIEW vw_pacientes_internados AS
+
+SELECT
+    p.id_pessoa,
+    p.nome AS paciente,
+    u.nome AS unidade,
+    i.leito,
+    i.data_entrada,
+    pr.nome AS preceptor
+
+FROM internacao i
+
+JOIN paciente pa
+    ON i.id_paciente = pa.id_pessoa
+
+JOIN pessoa p
+    ON pa.id_pessoa = p.id_pessoa
+
+JOIN unidade u
+    ON i.id_unidade = u.id_unidade
+
+JOIN preceptor pre
+    ON i.id_preceptor = pre.id_profissional
+
+JOIN profissional prof
+    ON pre.id_profissional = prof.id_pessoa
+
+JOIN pessoa pr
+    ON prof.id_pessoa = pr.id_pessoa
+
+WHERE i.data_alta IS NULL;
