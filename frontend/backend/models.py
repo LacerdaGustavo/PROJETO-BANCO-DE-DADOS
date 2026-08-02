@@ -141,3 +141,59 @@ class Preceptor(Base):
     titulacao = Column(String)
 
     profissional = relationship("Profissional")
+
+
+
+
+
+class Procedimento(Base):
+    __tablename__ = "procedimento"
+
+    id_procedimento = Column(Integer, primary_key=True)
+
+    codigo = Column(String)
+
+    nome = Column(String)
+
+    tempo_medio_minutos = Column(Integer)
+
+    nivel_risco = Column(String)
+
+    media_tempo_procedimento = Column(String)
+
+
+
+
+class ProcedimentoRealizado(Base):
+    __tablename__ = "procedimento_realizado"
+
+    id_atendimento = Column(
+        Integer,
+        ForeignKey("atendimento.id_atendimento"),
+        primary_key=True
+    )
+
+    id_procedimento = Column(
+        Integer,
+        ForeignKey("procedimento.id_procedimento"),
+        primary_key=True
+    )
+
+    quantidade = Column(Integer)
+
+    tempo_real_minutos = Column(Integer)
+
+    observacao = Column(String)
+
+    faturado = Column(Boolean)
+
+    hora_inicio = Column(DateTime)
+
+    atendimento = relationship("Atendimento")
+
+    procedimento = relationship("Procedimento")
+
+
+
+
+

@@ -188,142 +188,20 @@ def listar_atendimentos_paciente(id_paciente):
     return orm.listar_atendimentos_paciente(id_paciente)
 
 
-def listar_procedimentos_atendimento(id_atendimento):
-
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-
-            p.nome,
-            pr.quantidade,
-            pr.tempo_real_minutos
-
-        FROM procedimento_realizado pr
-
-        JOIN procedimento p
-            ON pr.id_procedimento = p.id_procedimento
-
-        WHERE pr.id_atendimento = %s
-
-        ORDER BY p.nome
-    """, (id_atendimento,))
-
-    dados = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-
-    return dados
-
-
 def listar_atendimentos_combo():
+    return orm.listar_atendimentos_combo()
 
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-            a.id_atendimento,
-            p.nome
-        FROM atendimento a
-        JOIN pessoa p
-            ON a.id_paciente = p.id_pessoa
-        ORDER BY a.id_atendimento;
-    """)
-
-    dados = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-
-    return dados
-
-
-
-def excluir_procedimento_realizado(
-    id_atendimento,
-    id_procedimento
-):
-
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    # Verifica se já foi faturado
-    cursor.execute("""
-        SELECT faturado
-        FROM procedimento_realizado
-        WHERE
-            id_atendimento = %s
-        AND
-            id_procedimento = %s
-    """, (
-        id_atendimento,
-        id_procedimento
-    ))
-
-    resultado = cursor.fetchone()
-
-    if resultado is None:
-
-        cursor.close()
-        conexao.close()
-        return False
-
-    faturado = resultado[0]
-
-    if faturado:
-
-        cursor.close()
-        conexao.close()
-        return False
-
-    cursor.execute("""
-        DELETE
-        FROM procedimento_realizado
-        WHERE
-            id_atendimento=%s
-        AND
-            id_procedimento=%s
-    """, (
-        id_atendimento,
-        id_procedimento
-    ))
-
-    conexao.commit()
-
-    cursor.close()
-    conexao.close()
-
-    return True
-
-
+def listar_procedimentos_atendimento(id_atendimento):
+    return orm.listar_procedimentos_atendimento(id_atendimento)
 
 def buscar_id_procedimento(nome):
+    return orm.buscar_id_procedimento(nome)
 
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT id_procedimento
-        FROM procedimento
-        WHERE nome = %s
-    """, (nome,))
-
-    resultado = cursor.fetchone()
-
-    cursor.close()
-    conexao.close()
-
-    if resultado:
-        return resultado[0]
-
-    return None
+def excluir_procedimento_realizado(id_atendimento, id_procedimento):
+    return orm.excluir_procedimento_realizado(
+        id_atendimento,
+        id_procedimento
+    )
 
 
 def calcular_tempo_medio_residente():

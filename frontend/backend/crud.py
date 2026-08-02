@@ -14,7 +14,9 @@ from backend.models import (
     Profissional,
     Residente,
     Preceptor,
-    Atendimento
+    Atendimento,
+    Procedimento,
+    ProcedimentoRealizado
 )
 
 
@@ -562,6 +564,159 @@ def listar_atendimentos_paciente(id_paciente):
         )
 
         return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+
+def listar_atendimentos_combo():
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+                Atendimento.id_atendimento,
+                Pessoa.nome
+            )
+
+            .join(
+                Paciente,
+                Atendimento.id_paciente == Paciente.id_pessoa
+            )
+
+            .join(
+                Pessoa,
+                Paciente.id_pessoa == Pessoa.id_pessoa
+            )
+
+            .order_by(
+                Atendimento.id_atendimento
+            )
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+def listar_procedimentos_atendimento(id_atendimento):
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(
+
+                Procedimento.nome,
+
+                ProcedimentoRealizado.quantidade,
+
+                ProcedimentoRealizado.tempo_real_minutos
+
+            )
+
+            .join(
+                Procedimento,
+                ProcedimentoRealizado.id_procedimento ==
+                Procedimento.id_procedimento
+            )
+
+            .where(
+                ProcedimentoRealizado.id_atendimento == id_atendimento
+            )
+
+            .order_by(
+                Procedimento.nome
+            )
+
+        )
+
+        return [tuple(linha) for linha in resultado]
+
+    finally:
+
+        session.close()
+
+
+
+
+
+
+
+def buscar_id_procedimento(nome):
+
+    session = SessionLocal()
+
+    try:
+
+        resultado = session.execute(
+
+            select(Procedimento.id_procedimento)
+
+            .where(
+                Procedimento.nome == nome
+            )
+
+        ).scalar_one_or_none()
+
+        return resultado
+
+    finally:
+
+        session.close()
+
+
+
+
+
+
+def excluir_procedimento_realizado(
+    id_atendimento,
+    id_procedimento
+):
+
+    session = SessionLocal()
+
+    try:
+
+        procedimento = session.get(
+
+            ProcedimentoRealizado,
+
+            (id_atendimento, id_procedimento)
+
+        )
+
+        if procedimento is None:
+            return False
+
+        if procedimento.faturado:
+            return False
+
+        session.delete(procedimento)
+
+        session.commit()
+
+        return True
+
+    except Exception:
+
+        session.rollback()
+
+        raise
 
     finally:
 
