@@ -1,4 +1,6 @@
 import psycopg2
+from backend import crud as orm
+
 from datetime import datetime
 
 
@@ -15,109 +17,37 @@ def conectar():
 
 
 def listar_pacientes():
-
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-            pe.id_pessoa,
-            pe.nome,
-            pe.cpf,
-            pe.telefone,
-            pe.data_nascimento,
-            pe.is_flamengo,
-            pa.num_convenio,
-            pa.grupo_sanguineo,
-            pa.alergias,
-            pa.endereco
-        FROM paciente pa
-        JOIN pessoa pe
-            ON pa.id_pessoa = pe.id_pessoa
-        ORDER BY pe.nome;
-    """)
-
-    pacientes = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-
-    return pacientes
+    return orm.listar_pacientes()
 
 
 
-def cadastrar_paciente(nome,cpf,telefone,data_nascimento,is_flamengo,convenio,grupo_sanguineo,alergias,endereco
+def cadastrar_paciente(
+    nome,
+    cpf,
+    telefone,
+    data_nascimento,
+    is_flamengo,
+    convenio,
+    grupo_sanguineo,
+    alergias,
+    endereco
 ):
-    print("Entrou em cadastrar_paciente")
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    data_nascimento = datetime.strptime(
+    return orm.cadastrar_paciente(
+        nome,
+        cpf,
+        telefone,
         data_nascimento,
-        "%d/%m/%Y"
-    ).date()
-
-    # Insere na tabela pessoa
-    cursor.execute("""
-        INSERT INTO pessoa
-        (nome, cpf, data_nascimento, is_flamengo, telefone)
-
-        VALUES (%s, %s, %s , %s , %s)
-
-        RETURNING id_pessoa
-    """, (nome, cpf, data_nascimento, is_flamengo, telefone))
-
-    id_pessoa = cursor.fetchone()[0]
-    print("ID:", id_pessoa)
-
-    # Insere na tabela paciente
-    cursor.execute("""
-        INSERT INTO paciente
-        (id_pessoa, num_convenio, alergias, grupo_sanguineo,endereco)
-
-        VALUES (%s, %s, %s, %s, %s)
-    """, (id_pessoa, convenio, alergias, grupo_sanguineo,endereco))
-
-    conexao.commit()
-    print("Paciente cadastrado com sucesso!")
-    cursor.close()
-    conexao.close()
+        is_flamengo,
+        convenio,
+        grupo_sanguineo,
+        alergias,
+        endereco
+    )
 
 
 
 def buscar_paciente(id_pessoa):
-
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        SELECT
-            pe.id_pessoa,
-            pe.nome,
-            pe.cpf,
-            pe.telefone,
-            pe.data_nascimento,
-            pe.is_flamengo,
-            pa.num_convenio,
-            pa.grupo_sanguineo,
-            pa.alergias,
-            pa.endereco
-        FROM pessoa pe
-        JOIN paciente pa
-            ON pe.id_pessoa = pa.id_pessoa
-        WHERE pe.id_pessoa = %s
-    """, (id_pessoa,))
-
-    paciente = cursor.fetchone()
-
-    cursor.close()
-    conexao.close()
-
-    return paciente
-
+    return orm.buscar_paciente(id_pessoa)
 
 
 ##ATUALIZA PACIENTE##
@@ -191,28 +121,7 @@ def atualizar_paciente(
 
 
 def excluir_paciente(id_pessoa):
-
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    # Primeiro remove da tabela paciente
-    cursor.execute("""
-        DELETE FROM paciente
-        WHERE id_pessoa = %s
-    """, (id_pessoa,))
-
-    # Depois remove da tabela pessoa
-    cursor.execute("""
-        DELETE FROM pessoa
-        WHERE id_pessoa = %s
-    """, (id_pessoa,))
-
-    conexao.commit()
-
-    cursor.close()
-    conexao.close()  
-
+    return orm.excluir_paciente(id_pessoa)
 
  
 def listar_pacientes_combo():

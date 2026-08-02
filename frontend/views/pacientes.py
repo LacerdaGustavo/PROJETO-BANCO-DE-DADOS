@@ -13,7 +13,8 @@ def criar_tela(parent):
 
         janela = ctk.CTkToplevel(parent)
         janela.title("Cadastrar Paciente")
-        janela.geometry("600x1000")
+        janela.geometry("650x1150")
+        janela.resizable(True, True)
         janela.grab_set()
 
        
@@ -123,7 +124,7 @@ def criar_tela(parent):
         texto_alergias = ctk.CTkTextbox(
             frame_paciente,
             width=450,
-            height=90
+            height=60
         )
 
         texto_alergias.pack(pady=5)
@@ -267,11 +268,14 @@ def criar_tela(parent):
 
         id_pessoa = valores[0]
 
-        excluir_paciente(id_pessoa)
+        if excluir_paciente(id_pessoa):
+            carregar_pacientes()
+            print("Paciente excluído.")
+        else:
+            print("Paciente não foi excluído.")
 
-        print("Paciente excluído.")
-
-    #Carregar
+            
+        #Carregar
     def carregar_pacientes():
 
         for item in tabela.get_children():
