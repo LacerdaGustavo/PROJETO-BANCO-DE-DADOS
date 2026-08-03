@@ -6,8 +6,8 @@ import os
 # (tava com problema nessa parte) garante que o Python reconheça a pasta atual para os imports, independente de onde o terminal for aberto.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from database import SessionLocal 
-from models import Atendimento
+from backend.database import SessionLocal
+from backend.models import Atendimento
 
 def escalar_residente(nome_transacao, id_residente, id_atendimento_vaga):
     """

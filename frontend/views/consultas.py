@@ -138,7 +138,7 @@ def criar_tela(parent):
                 tabela.column("Alto Risco", width=100, anchor="center")
                 tabela.column("Percentual", width=100, anchor="center")
                 
-                dados = [(row['residente'], row['total_procedimentos'], row['alto_risco'], row['percentual']) for row in dados_orm]
+                dados = [(row['residente'], row['total_procedimentos'], row['total_alto_risco'], row['percentual']) for row in dados_orm]
             finally:
                 session.close()
 
