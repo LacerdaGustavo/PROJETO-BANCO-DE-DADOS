@@ -56,5 +56,30 @@ def ultimo_atendimento_pacientes(session: Session):
     ).all()
 
     return resultados
-    
+
+def percentual_risco_alto_residentes(session: Session):
+    PessoaResidente = aliased(Pessoa)
+
+    resultados = session.query(
+        PessoaResidente.nome,
+        func.count(ProcedimentoRealizado.id_procedimento).label('total_procedimentos'),
+        func.sum(case((Procedimento.nivel_risco == 'ALTO', 1), else_=0)).label('total_alto_risco')
+    ).\
+    join(Residente, Residente.id_profissional == PessoaResidente.id_pessoa).\
+    join(Atendimento, Atendimento.id_residente == Residente.id_profissional).\
+    join(ProcedimentoRealizado, ProcedimentoRealizado.id_atendimento == Atendimento.id_atendimento).\
+    join(Procedimento, Procedimento.id_procedimento == ProcedimentoRealizado.id_procedimento).\
+    group_by(PessoaResidente.nome).all()
+
+    retorno = []
+    for res in resultados: 
+        percentual = (res.total_alto_risco / res.total_procedimentos * 100) if res.total_procedimentos > 0 else 0
+        retorno.append({
+            "residente": res.nome,
+            "total_procedimentos": res.total_procedimentos,
+            "total_alto_risco": res.total_alto_risco,
+            "percentual": round(percentual,2)
+        })
+
+    return retorno
 
