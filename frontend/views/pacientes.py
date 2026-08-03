@@ -312,9 +312,22 @@ def criar_tela(parent):
 
     entrada.pack(side="left", padx=10, pady=10)
 
+    # Função que faz o filtro na tabela
+    def buscar_paciente_tabela():
+        termo = entrada.get().lower()
+        # Limpa a tabela atual
+        for item in tabela.get_children():
+            tabela.delete(item)
+        # Filtra e reinsere apenas os que batem com a pesquisa
+        for paciente in pacientes:
+            # paciente[1] é o Nome do paciente
+            if termo in str(paciente[1]).lower(): 
+                tabela.insert("", "end", values=paciente)
+
     ctk.CTkButton(
         pesquisa,
-        text="Pesquisar"
+        text="Pesquisar",
+        command=buscar_paciente_tabela # <-- O comando que faltava!
     ).pack(side="left", padx=10)
 
    

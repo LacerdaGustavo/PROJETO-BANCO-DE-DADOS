@@ -23,8 +23,8 @@ def preceptores_pacientes_flamenguistas(session: Session):
 def ultimo_atendimento_pacientes(session: Session):
     #subconsulta para encontrar a data mais recente de cada paciente
     subquery = session.query(
-        Atendimento.id_paciente,
-        func.max(Atendimento.data_hora).label("última_data")
+        Atendimento.id_paciente, 
+        func.max(Atendimento.data_hora).label("ultima_data")
     ).group_by(Atendimento.id_paciente).subquery()
 
     #apelidos para a tabela Pessoa

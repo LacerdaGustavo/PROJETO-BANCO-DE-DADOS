@@ -51,6 +51,13 @@ def simular_concorrencia():
     id_residente_a = 101  
     id_residente_b = 102  
 
+    session_prep = SessionLocal()
+    vaga_prep = session_prep.query(Atendimento).filter(Atendimento.id_atendimento == id_vaga_alvo).first()
+    if vaga_prep:
+        vaga_prep.id_residente = None  # Esvazia a vaga
+        session_prep.commit()
+    session_prep.close()
+
     #duas "threads" (simulando dois usuários diferentes ao mesmo tempo)
     thread_1 = threading.Thread(target=escalar_residente, args=("Transação A (Coordenação)", id_residente_a, id_vaga_alvo))
     thread_2 = threading.Thread(target=escalar_residente, args=("Transação B (Secretaria)", id_residente_b, id_vaga_alvo))

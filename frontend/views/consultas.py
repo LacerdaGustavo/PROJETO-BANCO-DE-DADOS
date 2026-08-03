@@ -119,7 +119,8 @@ def criar_tela(parent):
                 tabela.column("Preceptor", width=120)
                 tabela.column("Procedimentos", width=200)
                 
-                dados = [(row.nome_paciente, row.data_hora, row.nome_residente, row.nome_preceptor, row.procedimentos) for row in dados_orm]
+                # A SOLUÇÃO: tuple(row) converte qualquer objeto do SQLAlchemy para texto simples!
+                dados = [tuple(row) for row in dados_orm]
             finally:
                 session.close()
 
