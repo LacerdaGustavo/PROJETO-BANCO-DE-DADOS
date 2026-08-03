@@ -2,6 +2,9 @@ import threading
 import time
 import sys
 import os
+import random
+from backend.database import SessionLocal
+from backend.models import Atendimento
 
 # (tava com problema nessa parte) garante que o Python reconheça a pasta atual para os imports, independente de onde o terminal for aberto.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -44,31 +47,35 @@ def escalar_residente(nome_transacao, id_residente, id_atendimento_vaga):
     finally:
         session.close()
 
+
 def simular_concorrencia():
-    print("-INICIANDO SIMULAÇÃO DE CONCORRÊNCIA (LOCK PESSIMISTA)-\n")
+    print("=== INICIANDO SIMULAÇÃO DE CONCORRÊNCIA (LOCK PESSIMISTA) ===\n")
     
     id_vaga_alvo = 1  
-    id_residente_a = 101  
-    id_residente_b = 102  
+    id_residente_a = 6
+    id_residente_b = 7  
 
+    #limpa a vaga para garantir que a disputa aconteça de verdade
     session_prep = SessionLocal()
     vaga_prep = session_prep.query(Atendimento).filter(Atendimento.id_atendimento == id_vaga_alvo).first()
     if vaga_prep:
-        vaga_prep.id_residente = None  # Esvazia a vaga
+        vaga_prep.id_residente = None  
         session_prep.commit()
     session_prep.close()
 
-    #duas "threads" (simulando dois usuários diferentes ao mesmo tempo)
+    #prepara as duas transações
     thread_1 = threading.Thread(target=escalar_residente, args=("Transação A (Coordenação)", id_residente_a, id_vaga_alvo))
     thread_2 = threading.Thread(target=escalar_residente, args=("Transação B (Secretaria)", id_residente_b, id_vaga_alvo))
 
-    thread_1.start()
-    thread_2.start()
+    #ordem de largada para ser imprevisível!
+    ordem_threads = [thread_1, thread_2]
+    random.shuffle(ordem_threads) 
+
+    #inicia as transações na ordem sorteada
+    for t in ordem_threads:
+        t.start()
 
     thread_1.join()
     thread_2.join()
     
-    print("\n-FIM DA SIMULAÇÃO-")
-
-if __name__ == "__main__":
-    simular_concorrencia()
+    print("\n=== FIM DA SIMULAÇÃO ===")
